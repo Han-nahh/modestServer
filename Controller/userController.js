@@ -1,25 +1,23 @@
-const User = require('../models');
+const {User} = require('../models');
 const bcrypt = require('bcryptjs'); 
 
 
 // Create User
 exports.createUser = async (req, res) => {
-    try {
-      const { name, email, password, phone_number, role } = req.body;
-  
-      // Check if the user already exists
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: 'User already exists' });
-      }
-  
-      const user = new User({ name, email, password, phone_number, role });
-      await user.save();
-  
-      res.status(201).json({ message: 'User created successfully', user });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+  try {
+    const { name, email, password, phone_number, role } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
+    const user = new User({ name, email, password, phone_number, role });
+    await user.save();
+    res.status(201).json({ message: 'User created successfully', user });
+  } catch (error) {
+    console.error(error);  // Log the error for debugging
+    res.status(400).json({ error: error.message });
+  }
+  
   };
 
   // Login User

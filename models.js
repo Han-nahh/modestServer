@@ -2,28 +2,27 @@ const mongoose = require('mongoose');
 
 const bcrypt = require('bcryptjs'); // Import bcryptjs
 
-// userSchema
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true, maxlength: 100 },
-  email: { type: String, unique: true, required: true, maxlength: 100 },
-  password: { type: String, required: true, maxlength: 255 },
-  phone_number: { type: String, maxlength: 15 },
-  role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
-}, { timestamps: true });
+    name: { type: String, required: true, maxlength: 100 },
+    email: { type: String, unique: true, required: true, maxlength: 100 },
+    password: { type: String, required: true, maxlength: 255 },
+    phone_number: { type: String, maxlength: 15 },
+    role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
+  }, { timestamps: true });
+  
+  // Hash the password before saving the user document
+  userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next(); // Only hash the password if it's modified
+    try {
+      const salt = await bcrypt.genSalt(10); // Generate salt
+      this.password = await bcrypt.hash(this.password, salt); // Hash password
+      next(); // Proceed with saving the user
+    } catch (error) {
+      next(error); // Handle any error
+    }
+  });
 
-// Hash the password before saving the user document
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); // Only hash the password if it's modified
-  try {
-    const salt = await bcrypt.genSalt(10); // Generate salt
-    this.password = await bcrypt.hash(this.password, salt); // Hash password
-    next(); // Proceed with saving the user
-  } catch (error) {
-    next(error); // Handle any error
-  }
-});
-const User = mongoose.model('User', userSchema);
-
+  const User = mongoose.model('User', userSchema);
 
 // Address Schema
 const addressSchema = new mongoose.Schema({
