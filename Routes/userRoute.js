@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../Controller/userController'); // Adjust the path
+const userController = require('../Controller/userController'); 
 
 // api/user
 router.post('/', userController.createUser);

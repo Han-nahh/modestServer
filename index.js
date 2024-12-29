@@ -4,7 +4,12 @@ const connectDB = require("./db");
 const cors = require("cors");
 
 const userRoutes=require('./Routes/userRoute');
-
+const addressRoutes=require('./Routes/addressRoutes');
+const categoryRoutes=require('./Routes/categoryRoutes');
+const productRoute=require('./Routes/productRoutes');
+const orderRoute=require('./Routes/orderRouter');
+const paymentRoute=require('./Routes/paymentRouter');
+const reviewWishlist=require('./Routes/reviewWishlistRouter');
 const app = express();
 
 // Middleware to parse JSON
@@ -15,6 +20,14 @@ app.get('/', (req, res) => {
   });
   
 app.use('/api/user', userRoutes);
+app.use('/api/addresses', addressRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/products',productRoute);
+app.use('/api/orders',orderRoute);
+app.use('/api/payment',paymentRoute);
+app.use('/api/revwish',reviewWishlist);
+
+
 
 // Connect to MongoDB
 connectDB();
