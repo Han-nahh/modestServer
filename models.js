@@ -63,19 +63,23 @@ const productSchema = new mongoose.Schema({
     image_url: { type: String, maxlength: 255 },
     discount_start_date: { type: Date },
     discount_end_date: { type: Date },
+    link: { type: String, default:   "/product/detail" },
+    size: { type: [String], default: [] }, 
+    color: { type: [String], default: [] },
 }, { timestamps: true });
+
 
 const Product = mongoose.model('Product', productSchema);
 
-// Orders Schema
 const orderSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     total_price: { type: mongoose.Types.Decimal128, required: true },
     status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
-}, { timestamps: true });
-
-const Order = mongoose.model('Order', orderSchema);
-
+    orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }] // Add this line
+  }, { timestamps: true });
+  
+  const Order = mongoose.model('Order', orderSchema);
+  
 // Order Items Schema
 const orderItemSchema = new mongoose.Schema({
     order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },

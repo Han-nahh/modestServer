@@ -10,6 +10,8 @@ router.delete('/reviews/:id', reviewWishlistController.deleteReview);
 // ** Wishlist Routes **
 router.post('/wishlist', reviewWishlistController.addToWishlist);
 router.get('/wishlist/:userId', reviewWishlistController.getUserWishlist);
+router.get('/wishlist/user/:userId', reviewWishlistController.getAllWishlist);
+router.get('/wishlist/all', reviewWishlistController.getAllWishlist);
 router.delete('/wishlist/:id', reviewWishlistController.removeFromWishlist);
 
 module.exports = router;

@@ -52,6 +52,7 @@ exports.deleteMainCategory = async (req, res) => {
 // Create a Subcategory
 exports.createSubcategory = async (req, res) => {
     try {
+        console.log(req.body)
         const { main_category, name } = req.body;
         const mainCategory = await MainCategory.findById(main_category);
         if (!mainCategory) return res.status(404).json({ message: 'Main Category not found' });

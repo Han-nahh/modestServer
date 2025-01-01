@@ -5,7 +5,11 @@ const {Product}=require('../models');
 // Create Product
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, discount, category, stock, image_url, discount_start_date, discount_end_date } = req.body;
+    const {  name,  description,   price, discount, category, stock, image_url,   discount_start_date, 
+      discount_end_date, 
+      size, 
+      color 
+    } = req.body;
 
     const product = new Product({
       name,
@@ -16,7 +20,9 @@ exports.createProduct = async (req, res) => {
       stock,
       image_url,
       discount_start_date,
-      discount_end_date
+      discount_end_date,
+      size,
+      color
     });
 
     await product.save();
@@ -25,6 +31,7 @@ exports.createProduct = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 // Get All Products
 exports.getAllProducts = async (req, res) => {
@@ -52,6 +59,7 @@ exports.getProduct = async (req, res) => {
 // Update Product
 exports.updateProduct = async (req, res) => {
   try {
+    console.log(req.body)
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -72,5 +80,15 @@ exports.deleteProduct = async (req, res) => {
     res.status(200).json({ message: 'Product deleted successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+exports.countProducts = async (req, res) => {
+  try {
+    const productCount = await Product.countDocuments(); // Adjust model as needed
+    res.status(200).json({ productCount });
+  } catch (error) {
+    console.error('Error counting products:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

@@ -92,6 +92,31 @@ exports.addToWishlist = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Get All Wishlist for a Specific User or All Users
+exports.getAllWishlist = async (req, res) => {
+  try {
+    const { userId } = req.params;  // Get the userId from the URL params
+
+    let wishlistItems;
+
+    if (userId === "all") {
+      // Fetch all wishlist items for all users
+      wishlistItems = await Wishlist.find().populate('user').populate('product');
+    } else {
+      // Fetch wishlist for a specific user
+      wishlistItems = await Wishlist.find({ user: userId }).populate('product');
+    }
+
+    if (wishlistItems.length === 0) {
+      return res.status(404).json({ message: 'No wishlist items found' });
+    }
+
+    res.status(200).json({ message: 'Wishlist fetched successfully', wishlistItems });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 
 // Get All Wishlist Items for a User
 exports.getUserWishlist = async (req, res) => {
