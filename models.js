@@ -75,7 +75,15 @@ const orderSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     total_price: { type: mongoose.Types.Decimal128, required: true },
     status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
-    orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }] // Add this line
+    orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
+    contactInfo: {
+      email: { type: String, required: true },
+      phone: { type: String, required: true },
+    },
+    shippingInfo: {
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+    },
   }, { timestamps: true });
   
   const Order = mongoose.model('Order', orderSchema);
