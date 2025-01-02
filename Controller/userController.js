@@ -1,6 +1,7 @@
 const {User} = require('../models');
 const bcrypt = require('bcryptjs'); 
-
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 // Create User
 exports.createUser = async (req, res) => {
@@ -20,6 +21,59 @@ exports.createUser = async (req, res) => {
   
   };
 
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // Example: use Gmail service, or configure for your email provider
+    auth: {
+      user: 'hannatesfaye11@gmail.com',
+      pass: 'caza najf gjlq jswt',
+    },
+  });
+exports.createAdmin = async (req, res) => {
+  try {
+    const { name, email, phone_number, role } = req.body;
+    
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    
+    // Generate a 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Create a new admin user with the OTP as password
+    const user = new User({ 
+      name, 
+      email, 
+      password: otp, // Set OTP as password
+      phone_number, 
+      role 
+    });
+    await user.save();
+
+    // Send OTP to the user's email
+    const mailOptions = {
+      from: 'hannatesfaye11@gmail.com',
+      to: email,
+      subject: 'Your OTP for First-Time Login',
+      text: `Your OTP for logging in is: ${otp}. Use this OTP to log in for the first time. Make sure to update your profile under the profile section.`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error('Error sending email:', err);
+        return res.status(500).json({ error: 'Error sending OTP email' });
+      }
+      console.log('OTP email sent:', info.response);
+    });
+
+    res.status(201).json({ message: 'Admin created successfully, OTP sent to email', user });
+
+  } catch (error) {
+    console.error(error);  // Log the error for debugging
+    res.status(400).json({ error: error.message });
+  }
+};
   // Login User
   exports.loginUser = async (req, res) => {
     try {
@@ -65,7 +119,7 @@ exports.createUser = async (req, res) => {
       }
   
       // Check if the user's role is "admin"
-      if (user.role !== 'admin') {
+      if (user.role !== 'admin' && user.role!== 'superadmin') {
         return res.status(403).json({ message: 'Access denied: User is not an admin' });
       }
   
@@ -86,6 +140,8 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+
+
 // Get Single User
 exports.getUser = async (req, res) => {
   try {
@@ -102,10 +158,21 @@ exports.getUser = async (req, res) => {
 // Update User
 exports.updateUser = async (req, res) => {
   try {
+    const { password } = req.body;
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10); // Generate salt
+      req.body.password = await bcrypt.hash(password, salt); // Hash the password
+    }
+
+    console.log(req.body); // Log the updated body for debugging
+
     const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
     res.status(200).json({ message: 'User updated successfully', user });
   } catch (error) {
     res.status(400).json({ error: error.message });

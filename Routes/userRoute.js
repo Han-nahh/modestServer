@@ -10,7 +10,10 @@ router.get('/:id', userController.getUser);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 router.post('/login', userController.loginUser);
+
+// admin specific routes
 router.post('/adminlogin',userController.loginUserAdmin);
+router.post('/addadmin', userController.createAdmin);
 
 
 module.exports = router;
