@@ -46,7 +46,7 @@ const config = {
 
 // Payment configuration
 const paymentConfig = {
-  CALLBACK_URL: "http://localhost:5000/api/verify-payment/",
+  CALLBACK_URL: "https://modestserver.onrender.com/api/verify-payment/",
   RETURN_URL: "http://localhost:3000/cart",
   MAX_RETRIES: 3,
   RETRY_INTERVAL: 2000
