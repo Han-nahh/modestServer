@@ -11,6 +11,7 @@ router.delete('/main/:id', categoryController.deleteMainCategory);
 // Subcategories Routes
 router.post('/subcategory', categoryController.createSubcategory); 
 router.get('/subcategory', categoryController.getAllSubcategories); 
+router.get('/subcategory/:id', categoryController.getSubcategoryById);
 router.put('/subcategory/:id', categoryController.updateSubcategory); 
 router.delete('/subcategory/:id', categoryController.deleteSubcategory); 
 

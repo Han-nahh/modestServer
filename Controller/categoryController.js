@@ -74,6 +74,20 @@ exports.getAllSubcategories = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+exports.getSubcategoryById = async (req, res) => {
+    try {
+        const subcategory = await Subcategory.findById(req.params.id).populate('main_category');
+        
+        if (!subcategory) {
+            return res.status(404).json({ message: 'Subcategory not found' });
+        }
+
+        res.status(200).json(subcategory);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
 
 // Update Subcategory by ID
 exports.updateSubcategory = async (req, res) => {
