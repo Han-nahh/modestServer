@@ -1,27 +1,41 @@
 const {Order} = require('../models');
 const {OrderItem} = require('../models');
 const mongoose = require('mongoose');
-
-
 exports.createOrder = async (req, res) => {
   try {
     const { user, total_price, status, items, shippingInfo } = req.body;
     console.log(req.body); // Log to verify the structure
 
-    // Safely convert total_price and item prices to Decimal128
+    // Safely convert total_price to Decimal128
     const totalPriceDecimal = mongoose.Types.Decimal128.fromString(total_price.toString().trim());
-    
     const contactInfo = {
       email: user.email,
-      phone: user.phone
+      phone: user.phone,
     };
 
+    // Generate invoice_number starting from 10000
+    let counter = await Counter.findOne({ name: 'invoice_number' });
+
+    // If counter doesn't exist, create and set it to 9999 (so first increment will be 10000)
+    if (!counter) {
+      counter = new Counter({ name: 'invoice_number', seq: 9999 });
+      await counter.save();
+    } else {
+      // Increment the counter by 1 for the new invoice number
+      counter.seq += 1;
+      await counter.save();
+    }
+
+    const invoiceNumber = counter.seq;
+
+    // Create order
     const order = new Order({
       user: user.id,
       total_price: totalPriceDecimal,
       status,
       contactInfo,
       shippingInfo,
+      invoice_number: `INV-${invoiceNumber}` // Format as "INV-10000", "INV-10001", etc.
     });
 
     await order.save();
@@ -34,7 +48,7 @@ exports.createOrder = async (req, res) => {
         order: order._id,
         product,
         quantity,
-        price: mongoose.Types.Decimal128.fromString(price.toString().trim()) // Ensure price is also properly converted
+        price: mongoose.Types.Decimal128.fromString(price.toString().trim()), // Convert price to Decimal128
       });
 
       await orderItem.save();
@@ -46,10 +60,11 @@ exports.createOrder = async (req, res) => {
 
     res.status(201).json({ message: 'Order created successfully', order });
   } catch (error) {
-    console.error(error);  // Log error message for debugging
+    console.error(error); // Log error message for debugging
     res.status(400).json({ error: error.message });
   }
 };
+
 
 
 // {

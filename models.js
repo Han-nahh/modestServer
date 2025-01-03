@@ -60,7 +60,7 @@ const productSchema = new mongoose.Schema({
     discount: { type: mongoose.Types.Decimal128, default: 0.00 },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory' },
     stock: { type: Number, default: 0 },
-    image_url: { type: String, maxlength: 255 },
+    image: { type: String }, 
     discount_start_date: { type: Date },
     discount_end_date: { type: Date },
     link: { type: String, default:   "/product/detail" },
@@ -77,17 +77,18 @@ const orderSchema = new mongoose.Schema({
     status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
     orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
     contactInfo: {
-      email: { type: String, required: true },
-      phone: { type: String, required: true },
+        email: { type: String, required: true },
+        phone: { type: String, required: true },
     },
     shippingInfo: {
-      address: { type: String, required: true },
-      city: { type: String, required: true },
+        address: { type: String, required: true },
+        city: { type: String, required: true },
     },
-  }, { timestamps: true });
-  
-  const Order = mongoose.model('Order', orderSchema);
-  
+    invoice_number: { type: String, required: true }, 
+}, { timestamps: true });
+
+const Order = mongoose.model('Order', orderSchema);
+
 // Order Items Schema
 const orderItemSchema = new mongoose.Schema({
     order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
