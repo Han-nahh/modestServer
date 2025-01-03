@@ -142,4 +142,5 @@ module.exports = {
     Payment,
     Review,
     Wishlist,
+    Counter,
 };

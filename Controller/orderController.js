@@ -2,6 +2,7 @@ const {Order} = require('../models');
 const {OrderItem} = require('../models');
 const {Counter} =require('../models');
 const mongoose = require('mongoose');
+
 exports.createOrder = async (req, res) => {
   try {
     const { user, total_price, status, items, shippingInfo } = req.body;
@@ -65,7 +66,6 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 
 // {
 //   "user": "64a7f5c7b9d8f90012d34abc",
