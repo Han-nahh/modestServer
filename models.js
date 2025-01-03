@@ -70,7 +70,12 @@ const productSchema = new mongoose.Schema({
 
 
 const Product = mongoose.model('Product', productSchema);
-
+const counterSchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    seq: { type: Number, required: true },
+  });
+  
+  const Counter = mongoose.model('Counter', counterSchema);
 const orderSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     total_price: { type: mongoose.Types.Decimal128, required: true },
