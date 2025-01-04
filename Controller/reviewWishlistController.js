@@ -71,6 +71,7 @@ exports.deleteReview = async (req, res) => {
 
 // Add Product to Wishlist
 exports.addToWishlist = async (req, res) => {
+  console.log(req.body)
   try {
     const { user, product } = req.body;
 
