@@ -95,7 +95,22 @@ exports.getAllOrders = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
+exports.getOrdersByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const orders = await Order.find({ user: userId })
+      .populate('user')
+      .populate('orderItems');
+    
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this user' });
+    }
+    
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 // Get Single Order
 exports.getOrder = async (req, res) => {
   try {
