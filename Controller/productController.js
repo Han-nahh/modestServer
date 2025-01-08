@@ -28,12 +28,7 @@ exports.createProduct = async (req, res) => {
         return res.status(400).json({ error: "Size must be an array of ObjectIds" });
       }
 
-      // Ensure all entries in `size` are valid ObjectIds
-      for (const id of size) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          return res.status(400).json({ error: `Invalid ObjectId in size: ${id}` });
-        }
-      }
+   
     }
 
     // Validate `color` field
@@ -42,12 +37,7 @@ exports.createProduct = async (req, res) => {
         return res.status(400).json({ error: "Color must be an array of ObjectIds" });
       }
 
-      // Ensure all entries in `color` are valid ObjectIds
-      for (const id of color) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          return res.status(400).json({ error: `Invalid ObjectId in color: ${id}` });
-        }
-      }
+    
     }
 
     // Proceed with saving the product
@@ -109,13 +99,7 @@ exports.updateProduct = async (req, res) => {
   try {
     const { size, color, stock } = req.body;
 
-    // Validate size and color updates
-    if (size && !Array.isArray(size)) {
-      return res.status(400).json({ error: 'Size must be an array of ObjectIds' });
-    }
-    if (color && !Array.isArray(color)) {
-      return res.status(400).json({ error: 'Color must be an array of ObjectIds' });
-    }
+  
 
 
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });

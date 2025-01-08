@@ -83,8 +83,8 @@ const productSchema = new mongoose.Schema({
     discount_start_date: { type: Date },
     discount_end_date: { type: Date },
     link: { type: String, default: "/product/detail" },
-    size: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Size' }], 
-    color: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Color' }],
+    size: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Size' }], default: null }, 
+    color: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Color' }], default: null },
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
