@@ -31,7 +31,7 @@ exports.requestPasswordReset = async (req, res) => {
     await user.save();
 
     // Send reset email
-    const resetURL = `http://localhost:5173/reset-password?token=${resetToken}&email=${email}`;
+    const resetURL = `http://localhost:3000/reset-password?token=${resetToken}&email=${email}`;
     const mailOptions = {
       from: 'hannatesfaye11@gmail.com',
       to: email,
