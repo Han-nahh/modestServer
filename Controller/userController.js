@@ -1,11 +1,11 @@
-const {User} = require('../models');
-const bcrypt = require('bcryptjs'); 
+const { User } = require('../models');
+const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail', 
+  service: 'gmail',
   auth: {
     user: 'hannatesfaye11@gmail.com',
     pass: 'caza najf gjlq jswt',
@@ -98,30 +98,30 @@ exports.createUser = async (req, res) => {
     console.error(error);  // Log the error for debugging
     res.status(400).json({ error: error.message });
   }
-  
-  };
 
- 
+};
+
+
 exports.createAdmin = async (req, res) => {
   try {
     const { name, email, phone_number, role } = req.body;
-    
+
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
-    
+
     // Generate a 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
 
     // Create a new admin user with the OTP as password
-    const user = new User({ 
-      name, 
-      email, 
+    const user = new User({
+      name,
+      email,
       password: otp, // Set OTP as password
-      phone_number, 
-      role 
+      phone_number,
+      role
     });
     await user.save();
 
@@ -148,62 +148,62 @@ exports.createAdmin = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-  // Login User
-  exports.loginUser = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      // Find user by email
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-      }
-  
-      // Compare entered password with the hashed password in the database
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-      }
-  
-      // Check if the user's role is "customer"
-      if (user.role !== 'customer') {
-        return res.status(403).json({ message: 'Access denied: User is not a customer' });
-      }
-  
-      // Optionally, return the user object or generate a token (JWT)
-      res.status(200).json({ message: 'Login successful', user });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+// Login User
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
-  };
-  exports.loginUserAdmin = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      // Find user by email
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-      }
-  
-      // Compare entered password with the hashed password in the database
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-      }
-  
-      // Check if the user's role is "admin"
-      if (user.role !== 'admin' && user.role!== 'superadmin') {
-        return res.status(403).json({ message: 'Access denied: User is not an admin' });
-      }
-  
-      // Optionally, return the user object or generate a token (JWT)
-      res.status(200).json({ message: 'Login successful', user });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+
+    // Compare entered password with the hashed password in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
-  };
-  
+
+    // Check if the user's role is "customer"
+    if (user.role !== 'customer') {
+      return res.status(403).json({ message: 'Access denied: User is not a customer' });
+    }
+
+    // Optionally, return the user object or generate a token (JWT)
+    res.status(200).json({ message: 'Login successful', user });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+exports.loginUserAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Compare entered password with the hashed password in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Check if the user's role is "admin"
+    if (user.role !== 'admin' && user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Access denied: User is not an admin' });
+    }
+
+    // Optionally, return the user object or generate a token (JWT)
+    res.status(200).json({ message: 'Login successful', user });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Get All Users
 exports.getAllUsers = async (req, res) => {
   try {

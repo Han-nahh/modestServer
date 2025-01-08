@@ -1,6 +1,6 @@
 const { Product } = require('../models');
 
-// Create Product
+
 exports.createProduct = async (req, res) => {
   try {
     const {
@@ -17,21 +17,37 @@ exports.createProduct = async (req, res) => {
       color,
     } = req.body;
 
-    // Ensure that stock is provided and is a number
-    if (stock && typeof stock !== 'number') {
-      return res.status(400).json({ error: 'Stock must be a number' });
-    }
 
     if (!image) {
-      return res.status(400).json({ error: 'Image is required' });
+      return res.status(400).json({ error: "Image is required" });
     }
 
-    // Validate size and color (ensure they are valid ObjectIds)
-    if (size && !Array.isArray(size)) {
-      return res.status(400).json({ error: 'Size must be an array of ObjectIds' });
+    // Validate `size` field
+    if (size) {
+      if (!Array.isArray(size)) {
+        return res.status(400).json({ error: "Size must be an array of ObjectIds" });
+      }
+
+      // Ensure all entries in `size` are valid ObjectIds
+      for (const id of size) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ error: `Invalid ObjectId in size: ${id}` });
+        }
+      }
     }
-    if (color && !Array.isArray(color)) {
-      return res.status(400).json({ error: 'Color must be an array of ObjectIds' });
+
+    // Validate `color` field
+    if (color) {
+      if (!Array.isArray(color)) {
+        return res.status(400).json({ error: "Color must be an array of ObjectIds" });
+      }
+
+      // Ensure all entries in `color` are valid ObjectIds
+      for (const id of color) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ error: `Invalid ObjectId in color: ${id}` });
+        }
+      }
     }
 
     // Proceed with saving the product
@@ -41,7 +57,7 @@ exports.createProduct = async (req, res) => {
       price,
       discount,
       category,
-      stock: stock || 0, // Ensure default stock if not provided
+      stock: stock || 0,
       image,
       discount_start_date,
       discount_end_date,
@@ -50,11 +66,12 @@ exports.createProduct = async (req, res) => {
     });
 
     await product.save();
-    res.status(201).json({ message: 'Product created successfully', product });
+    res.status(201).json({ message: "Product created successfully", product });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
+
 
 // Get All Products
 exports.getAllProducts = async (req, res) => {
@@ -100,10 +117,6 @@ exports.updateProduct = async (req, res) => {
       return res.status(400).json({ error: 'Color must be an array of ObjectIds' });
     }
 
-    // Ensure that stock is a number if it's provided
-    if (stock && typeof stock !== 'number') {
-      return res.status(400).json({ error: 'Stock must be a number' });
-    }
 
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!product) {
