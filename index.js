@@ -10,6 +10,7 @@ const productRoute = require('./Routes/productRoutes');
 const orderRoute = require('./Routes/orderRouter');
 const paymentRoute = require('./Routes/paymentRouter');
 const reviewWishlist = require('./Routes/reviewWishlistRouter');
+const colorSize=require('./Routes/colorSizeRoute');
 const app = express();
 
 // Middleware to parse JSON
@@ -26,6 +27,9 @@ app.use('/api/products', productRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/payment', paymentRoute);
 app.use('/api/revwish', reviewWishlist);
+app.use('/api/colorsize', colorSize);
+
+
 
 
 

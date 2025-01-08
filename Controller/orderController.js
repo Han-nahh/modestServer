@@ -1,4 +1,5 @@
 const {Order} = require('../models');
+const {Product} =require('../models');
 const {OrderItem} = require('../models');
 const {Counter} =require('../models');
 const mongoose = require('mongoose');
@@ -41,20 +42,31 @@ exports.createOrder = async (req, res) => {
     });
 
     await order.save();
-
-    // Create order items
     for (let item of items) {
       const { product, quantity, price } = item;
-
+    
+      // Find product by item.product (which is the product ID)
+      const productDoc = await Product.findById(product);
+      if (productDoc) {
+        productDoc.stock -= quantity; // Subtract the quantity from the product's stock
+        if (productDoc.stock < 0) {
+          throw new Error(`Not enough stock for product: ${productDoc.name}`);
+        }
+        await productDoc.save(); // Save the updated product
+      } else {
+        throw new Error(`Product with ID ${product} not found`);
+      }
+    
       const orderItem = new OrderItem({
         order: order._id,
         product,
         quantity,
         price: mongoose.Types.Decimal128.fromString(price.toString().trim()), // Convert price to Decimal128
       });
-
+    
       await orderItem.save();
     }
+    
 
     const orderItems = await OrderItem.find({ order: order._id });
     order.orderItems = orderItems.map(item => item._id);

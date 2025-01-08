@@ -2,14 +2,20 @@ const mongoose = require('mongoose');
 
 const bcrypt = require('bcryptjs'); // Import bcryptjs
 
-const userSchema = new mongoose.Schema({
-    name: { type: String, required: true, maxlength: 100 },
-    email: { type: String, unique: true, required: true, maxlength: 100 },
-    password: { type: String,  maxlength: 255 },
-    phone_number: { type: String, maxlength: 35 },
-    role: { type: String, enum: ['admin', 'customer','superadmin'] },
-  }, { timestamps: true });
+const userSchema = new mongoose.Schema(
+    {
+      name: { type: String, required: true, maxlength: 100 },
+      email: { type: String, unique: true, required: true, maxlength: 100 },
+      password: { type: String, maxlength: 255 },
+      phone_number: { type: String, maxlength: 35 },
+      role: { type: String, enum: ['admin', 'customer', 'superadmin'] },
+      resetPasswordToken: { type: String }, // Added for password reset token
+      resetPasswordExpires: { type: Date }, // Added for token expiration
+    },
+    { timestamps: true }
+  );
   
+  // Pre-save hook for hashing the password
   userSchema.pre('save', async function (next) {
     if (this.password && this.isModified('password')) {
       try {
@@ -21,9 +27,8 @@ const userSchema = new mongoose.Schema({
     }
     next(); // Proceed with saving the user
   });
-
+  
   const User = mongoose.model('User', userSchema);
-
 // Address Schema
 const addressSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -52,24 +57,39 @@ const subcategorySchema = new mongoose.Schema({
 
 const Subcategory = mongoose.model('Subcategory', subcategorySchema);
 
-// Products Schema
+const colorSchema = new mongoose.Schema({
+    name: { type: String, required: true, maxlength: 100 }, // Color name (e.g., Red, Blue, Green)
+    hexCode: { type: String, required: false, maxlength: 7 }, // Optional HEX code (e.g., #FFFFFF)
+}, { timestamps: true });
+
+const Color = mongoose.model('Color', colorSchema);
+
+// Size Schema
+const sizeSchema = new mongoose.Schema({
+    name: { type: String, required: true, maxlength: 100 }, // Size name (e.g., Small, Medium, Large)
+    description: { type: String, required: false, maxlength: 200 }, // Optional description (e.g., "For children" or "Waist 32-34")
+}, { timestamps: true });
+
+const Size = mongoose.model('Size', sizeSchema);
+
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true, maxlength: 100 },
     description: { type: String },
     price: { type: mongoose.Types.Decimal128, required: true },
     discount: { type: mongoose.Types.Decimal128, default: 0.00 },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory' },
-    stock: { type: Number, default: 0 },
+    stock: { type: Number, default: 0 },  
     image: { type: String }, 
     discount_start_date: { type: Date },
     discount_end_date: { type: Date },
-    link: { type: String, default:   "/product/detail" },
-    size: { type: [String], default: [] }, 
-    color: { type: [String], default: [] },
+    link: { type: String, default: "/product/detail" },
+    size: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Size' }], 
+    color: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Color' }],
 }, { timestamps: true });
 
-
 const Product = mongoose.model('Product', productSchema);
+
+
 const counterSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     seq: { type: Number, required: true },
@@ -143,4 +163,6 @@ module.exports = {
     Review,
     Wishlist,
     Counter,
+    Color,
+    Size
 };

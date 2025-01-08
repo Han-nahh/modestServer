@@ -11,6 +11,9 @@ router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 router.post('/login', userController.loginUser);
 
+router.post('/request-password-reset', userController.requestPasswordReset);
+router.post('/reset-password', userController.resetPassword);
+
 // admin specific routes
 router.post('/adminlogin',userController.loginUserAdmin);
 router.post('/addadmin', userController.createAdmin);

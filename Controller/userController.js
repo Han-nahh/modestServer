@@ -3,6 +3,86 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail', 
+  auth: {
+    user: 'hannatesfaye11@gmail.com',
+    pass: 'caza najf gjlq jswt',
+  },
+});
+// Request Password Reset
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate a secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+    // Store hashed token and expiry in user
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = resetTokenExpiry;
+    await user.save();
+
+    // Send reset email
+    const resetURL = `http://localhost:5173/reset-password?token=${resetToken}&email=${email}`;
+    const mailOptions = {
+      from: 'hannatesfaye11@gmail.com',
+      to: email,
+      subject: 'Password Reset Request',
+      text: `You requested a password reset. Click the link to reset your password: ${resetURL}. This link expires in 1 hour.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Password reset link sent to email' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, email, newPassword } = req.body;
+
+    // Hash the token to compare with the stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find the user by email and valid token
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }, // Check if token is not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // Set the new password in the user model (the hashing will be done in the pre-save hook)
+    user.password = newPassword;
+
+    // Clear reset token and expiry
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+
+
 // Create User
 exports.createUser = async (req, res) => {
   try {
@@ -21,13 +101,7 @@ exports.createUser = async (req, res) => {
   
   };
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // Example: use Gmail service, or configure for your email provider
-    auth: {
-      user: 'hannatesfaye11@gmail.com',
-      pass: 'caza najf gjlq jswt',
-    },
-  });
+ 
 exports.createAdmin = async (req, res) => {
   try {
     const { name, email, phone_number, role } = req.body;
