@@ -48,8 +48,13 @@ exports.createOrder = async (req, res) => {
 
     // Iterate through the items, which is now guaranteed to be an array
     for (let item of orderItems) {
+      // Ensure item is valid before destructuring
+      if (!item || !item.product || !item.quantity || !item.price) {
+        throw new Error('Invalid item structure');
+      }
+
       const { product, quantity, price } = item;
-    
+
       // Find product by item.product (which is the product ID)
       const productDoc = await Product.findById(product);
       if (productDoc) {
@@ -82,7 +87,6 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 
 // {
 //   "user": "64a7f5c7b9d8f90012d34abc",
