@@ -114,27 +114,31 @@ exports.createOrder = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate('user').populate('orderItems');
+    // Ensure populated orderItems contains color and size data
     res.status(200).json(orders);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
+// Get Orders by User ID
 exports.getOrdersByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
     const orders = await Order.find({ user: userId })
       .populate('user')
       .populate('orderItems');
-    
+
     if (!orders || orders.length === 0) {
       return res.status(404).json({ message: 'No orders found for this user' });
     }
-    
+
     res.status(200).json(orders);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 // Get Single Order
 exports.getOrder = async (req, res) => {
   try {
@@ -151,7 +155,7 @@ exports.getOrder = async (req, res) => {
 // Update Order
 exports.updateOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('user').populate('orderItems');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
