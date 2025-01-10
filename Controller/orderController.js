@@ -9,6 +9,9 @@ exports.createOrder = async (req, res) => {
     const { user, total_price, status, items, shippingInfo } = req.body;
     console.log(req.body); // Log to verify the structure
 
+    // Check if items is an array, if not, wrap it in an array
+    const orderItems = Array.isArray(items) ? items : [items];
+
     // Safely convert total_price to Decimal128
     const totalPriceDecimal = mongoose.Types.Decimal128.fromString(total_price.toString().trim());
     const contactInfo = {
@@ -42,7 +45,9 @@ exports.createOrder = async (req, res) => {
     });
 
     await order.save();
-    for (let item of items) {
+
+    // Iterate through the items, which is now guaranteed to be an array
+    for (let item of orderItems) {
       const { product, quantity, price } = item;
     
       // Find product by item.product (which is the product ID)
@@ -67,9 +72,8 @@ exports.createOrder = async (req, res) => {
       await orderItem.save();
     }
     
-
-    const orderItems = await OrderItem.find({ order: order._id });
-    order.orderItems = orderItems.map(item => item._id);
+    const savedOrderItems = await OrderItem.find({ order: order._id });
+    order.orderItems = savedOrderItems.map(item => item._id);
     await order.save();
 
     res.status(201).json({ message: 'Order created successfully', order });
@@ -78,6 +82,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 // {
 //   "user": "64a7f5c7b9d8f90012d34abc",
