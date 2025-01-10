@@ -109,12 +109,18 @@ exports.createOrder = async (req, res) => {
 //   ]
 // }
 
-
 // Get All Orders
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('user').populate('orderItems');
-    // Ensure populated orderItems contains color and size data
+    const orders = await Order.find()
+      .populate('user')
+      .populate({
+        path: 'orderItems',
+        populate: [
+          { path: 'color' },  // Populating color
+          { path: 'size' }    // Populating size
+        ]
+      });
     res.status(200).json(orders);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -127,7 +133,13 @@ exports.getOrdersByUserId = async (req, res) => {
     const userId = req.params.userId;
     const orders = await Order.find({ user: userId })
       .populate('user')
-      .populate('orderItems');
+      .populate({
+        path: 'orderItems',
+        populate: [
+          { path: 'color' },  // Populating color
+          { path: 'size' }    // Populating size
+        ]
+      });
 
     if (!orders || orders.length === 0) {
       return res.status(404).json({ message: 'No orders found for this user' });
@@ -142,7 +154,15 @@ exports.getOrdersByUserId = async (req, res) => {
 // Get Single Order
 exports.getOrder = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('user').populate('orderItems');
+    const order = await Order.findById(req.params.id)
+      .populate('user')
+      .populate({
+        path: 'orderItems',
+        populate: [
+          { path: 'color' },  // Populating color
+          { path: 'size' }    // Populating size
+        ]
+      });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -155,7 +175,15 @@ exports.getOrder = async (req, res) => {
 // Update Order
 exports.updateOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('user').populate('orderItems');
+    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      .populate('user')
+      .populate({
+        path: 'orderItems',
+        populate: [
+          { path: 'color' },  // Populating color
+          { path: 'size' }    // Populating size
+        ]
+      });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
