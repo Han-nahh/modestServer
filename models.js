@@ -121,11 +121,13 @@ const Order = mongoose.model('Order', orderSchema);
 
 
 // Order Items Schema
-const orderItemSchema = new mongoose.Schema({
-    order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-    quantity: { type: Number, required: true },
-    price: { type: mongoose.Types.Decimal128, required: true },
+const OrderItemSchema = new mongoose.Schema({
+  order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  quantity: { type: Number },
+  price: { type: mongoose.Schema.Types.Decimal128 },
+  color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color' },  // Reference to a Color document
+  size: { type: mongoose.Schema.Types.ObjectId, ref: 'Size' },  // Reference to a Size document
 });
 
 const OrderItem = mongoose.model('OrderItem', orderItemSchema);
