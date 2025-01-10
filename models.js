@@ -120,15 +120,13 @@ const orderSchema = new mongoose.Schema({
 const Order = mongoose.model('Order', orderSchema);
 
 
-// Order Items Schema
-const OrderItemSchema = new mongoose.Schema({
-  order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-  quantity: { type: Number },
-  price: { type: mongoose.Schema.Types.Decimal128 },
-    
-  color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color' },  
-  size: { type: mongoose.Schema.Types.ObjectId, ref: 'Size' },
+const orderItemSchema = new mongoose.Schema({
+    order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    quantity: { type: Number, required: true },
+    price: { type: mongoose.Types.Decimal128, required: true },
+  color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color' },
+  size: { type: mongoose.Schema.Types.ObjectId, ref: 'Size' }, 
 });
 
 const OrderItem = mongoose.model('OrderItem', orderItemSchema);
