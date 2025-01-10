@@ -126,11 +126,13 @@ const OrderItemSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
   quantity: { type: Number },
   price: { type: mongoose.Schema.Types.Decimal128 },
-  color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color' },  // Reference to a Color document
-  size: { type: mongoose.Schema.Types.ObjectId, ref: 'Size' },  // Reference to a Size document
+    
+  color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color' },  
+  size: { type: mongoose.Schema.Types.ObjectId, ref: 'Size' },
 });
 
 const OrderItem = mongoose.model('OrderItem', orderItemSchema);
+
 
 // Payment Schema
 const paymentSchema = new mongoose.Schema({
