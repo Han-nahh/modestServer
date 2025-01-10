@@ -53,7 +53,7 @@ exports.createOrder = async (req, res) => {
         throw new Error('Invalid item structure');
       }
 
-      const { product, quantity, price } = item;
+      const { product, quantity, price, color, size } = item;
 
       // Find product by item.product (which is the product ID)
       const productDoc = await Product.findById(product);
@@ -66,17 +66,19 @@ exports.createOrder = async (req, res) => {
       } else {
         throw new Error(`Product with ID ${product} not found`);
       }
-    
+
       const orderItem = new OrderItem({
         order: order._id,
         product,
         quantity,
         price: mongoose.Types.Decimal128.fromString(price.toString().trim()), // Convert price to Decimal128
+        color,  // Added color reference
+        size,   // Added size reference
       });
-    
+
       await orderItem.save();
     }
-    
+
     const savedOrderItems = await OrderItem.find({ order: order._id });
     order.orderItems = savedOrderItems.map(item => item._id);
     await order.save();
@@ -87,6 +89,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 // {
 //   "user": "64a7f5c7b9d8f90012d34abc",
