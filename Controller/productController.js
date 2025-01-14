@@ -98,45 +98,55 @@ exports.getProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { size, color, stock } = req.body;
+    const { name, price, size, color, ...rest } = req.body;
 
-    // Validate and transform `size` to an array of ObjectIds
+    // Validate size
     if (size) {
       if (!Array.isArray(size)) {
-        return res.status(400).json({ error: "Size must be an array of ObjectIds" });
+        return res.status(400).json({ error: "`size` must be an array of ObjectIds." });
       }
-      req.body.size = size.map((s) => {
-        if (mongoose.Types.ObjectId.isValid(s)) {
-          return s; // Keep valid ObjectId
-        } else {
-          throw new Error(`Invalid size ObjectId: ${s}`);
+      for (const id of size) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ error: `Invalid size ObjectId: ${id}` });
         }
-      });
+      }
     }
 
-    // Validate and transform `color` to an array of ObjectIds
+    // Validate color
     if (color) {
       if (!Array.isArray(color)) {
-        return res.status(400).json({ error: "Color must be an array of ObjectIds" });
+        return res.status(400).json({ error: "`color` must be an array of ObjectIds." });
       }
-      req.body.color = color.map((c) => {
-        if (mongoose.Types.ObjectId.isValid(c)) {
-          return c; // Keep valid ObjectId
-        } else {
-          throw new Error(`Invalid color ObjectId: ${c}`);
+      for (const id of color) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ error: `Invalid color ObjectId: ${id}` });
         }
-      });
+      }
     }
 
-    // Proceed with the update
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    // Create or update product
+    const productData = {
+      name,
+      price: parseFloat(price), // Ensure price is a number
+      size,
+      color,
+      ...rest,
+    };
+
+    const product = req.params.id
+      ? await Product.findByIdAndUpdate(req.params.id, productData, { new: true })
+      : await Product.create(productData);
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json({ message: "Product updated successfully", product });
+    res.status(200).json({
+      message: req.params.id ? "Product updated successfully" : "Product created successfully",
+      product,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
