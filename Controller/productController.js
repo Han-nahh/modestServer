@@ -97,57 +97,46 @@ exports.getProduct = async (req, res) => {
 };
 
 exports.updateProduct = async (req, res) => {
-  try {
-    const { name, price, size, color, ...rest } = req.body;
+   try {
+        const { size, color, ...productData } = req.body;
+console.log(req.params)
+        // Convert the sizes and colors to ObjectId and filter out duplicates
+        const uniqueSizes = Array.from(new Set(size)).map(id => new mongoose.Types.ObjectId(id));
+        const uniqueColors = Array.from(new Set(color)).map(id => new mongoose.Types.ObjectId(id));
 
-    // Validate size
-    if (size) {
-      if (!Array.isArray(size)) {
-        return res.status(400).json({ error: "`size` must be an array of ObjectIds." });
-      }
-      for (const id of size) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          return res.status(400).json({ error: `Invalid size ObjectId: ${id}` });
+        // Find and update the product, using $addToSet to prevent duplicates
+        const updatedProduct = await Product.findOneAndUpdate(
+            { _id: req.params.id },
+            {
+                $set: {
+                    name: productData.name,
+                    description: productData.description,
+                    price: mongoose.Types.Decimal128.fromString(productData.price),
+                    discount: mongoose.Types.Decimal128.fromString(productData.discount),
+                    category: productData.category,
+                    stock: productData.stock,
+                    image: productData.image,
+                    discount_start_date: productData.discount_start_date,
+                    discount_end_date: productData.discount_end_date,
+                    link: productData.link
+                },
+                $addToSet: {
+                    size: { $each: uniqueSizes },
+                    color: { $each: uniqueColors }
+                }
+            },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Product not found' });
         }
-      }
+
+        return res.status(200).json(updatedProduct);
+    } catch (error) {
+        console.error("Error updating product:", error);
+        return res.status(500).json({ message: 'Server error' });
     }
-
-    // Validate color
-    if (color) {
-      if (!Array.isArray(color)) {
-        return res.status(400).json({ error: "`color` must be an array of ObjectIds." });
-      }
-      for (const id of color) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          return res.status(400).json({ error: `Invalid color ObjectId: ${id}` });
-        }
-      }
-    }
-
-    // Create or update product
-    const productData = {
-      name,
-      price: parseFloat(price), // Ensure price is a number
-      size,
-      color,
-      ...rest,
-    };
-
-    const product = req.params.id
-      ? await Product.findByIdAndUpdate(req.params.id, productData, { new: true })
-      : await Product.create(productData);
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.status(200).json({
-      message: req.params.id ? "Product updated successfully" : "Product created successfully",
-      product,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
 
